@@ -1,0 +1,5 @@
+paver>=1.0
+pytest>=2.1
+tornado>=2.0
+bolacha>=0.3
+pexpect>=2.4

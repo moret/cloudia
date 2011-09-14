@@ -1,0 +1,38 @@
+== cloudia ==
+
+A MapReduce Cloud Framework
+
+Under development - don't expect to be able to do much right now.
+
+== cloning and setup ==
+
+I recommend you to use virtualenv:
+
+pip install virtualenv
+mkdir cloudia_env
+cd cloudia_env
+virtualenv --no-site-packages .
+source bin/activate
+git clone git@github:/moret/cloudia.git
+cd cloudia
+pip install -r requirements.pip
+
+== developing ==
+
+Make sure you've started your virtualenv, run the tests, code, test again and so on:
+
+source bin/activate
+cd cloudia
+paver tests
+
+== running ==
+
+Again, make sure you've started your virtualenv and simply run the server:
+
+source bin/activate
+cd cloudia
+paver run
+
+And point your browser to http://lvh.me:8888/ if your connected to the internet, or http://0.0.0.0:8888/ if not.
+
+Have fun!
