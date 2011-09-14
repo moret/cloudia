@@ -13,7 +13,7 @@ mkdir cloudia_env
 cd cloudia_env
 virtualenv --no-site-packages .
 source bin/activate
-git clone git@github:/moret/cloudia.git
+git clone git@github.com:moret/cloudia.git
 cd cloudia
 pip install -r requirements.pip
 
