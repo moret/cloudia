@@ -3,3 +3,4 @@ pytest>=2.1
 tornado>=2.0
 bolacha>=0.3
 pexpect>=2.4
+boto>=2.0

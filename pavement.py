@@ -17,7 +17,7 @@ def tests():
     test_server = pexpect.spawn('paver run')
     test_server.expect(' => Listening on 8888')
 
-    pytest.main('-x tests')
+    pytest.main('-s -v tests')
 
     test_server.terminate()
     clean()
