@@ -5,7 +5,7 @@ import os
 import tornado.ioloop
 import tornado.web
 
-from model import instance_manager
+from model import group_manager
 
 class SignedInHandler(tornado.web.RequestHandler):
     def cookie_data(self):
@@ -21,7 +21,7 @@ class HomeHandler(SignedInHandler):
 
         groups = None
         if signed_in:
-            groups = instance_manager.list_groups(access, secret)
+            groups = group_manager.list_groups(access, secret)
 
         self.render('home.html', signed_in=signed_in, groups=groups)
 
@@ -39,7 +39,7 @@ class SignoutHandler(tornado.web.RequestHandler):
         self.clear_cookie('secret')
         self.redirect('/')
 
-class InstancesStartHandler(SignedInHandler):
+class GroupStartHandler(SignedInHandler):
     def post(self):
         access, secret, signed_in = self.cookie_data()
 
@@ -47,7 +47,7 @@ class InstancesStartHandler(SignedInHandler):
             group = self.get_argument('group')
             ami = self.get_argument('ami')
             how_many = self.get_argument('how_many')
-            instance_manager.start_group(access, secret, ami, group,
+            group_manager.start_group(access, secret, ami, group,
                     how_many)
         self.redirect('/')
 
@@ -56,7 +56,7 @@ class GroupDeleteHandler(SignedInHandler):
         access, secret, signed_in = self.cookie_data()
 
         if signed_in:
-            instance_manager.stop_group(access, secret, group)
+            group_manager.stop_group(access, secret, group)
         self.redirect('/')
 
 
@@ -65,12 +65,12 @@ def start():
         (r"/", HomeHandler),
         (r"/signin", SigninHandler),
         (r"/signout", SignoutHandler),
-        (r"/group/start", InstancesStartHandler),
+        (r"/group/start", GroupStartHandler),
         (r"/group/delete/(\w+)", GroupDeleteHandler),
     ], **{
         'template_path': os.path.join('templates'),
         'debug': True,
-        'cookie_secret': '3n9emnd9emsd92ns0cm392nds83n38xmsksalap29mcksjwmswm'
+        'cookie_secret': 'not-really-secure-will-read-from-env-later'
     })
     application.listen(8888)
     print(' => Listening on 8888')

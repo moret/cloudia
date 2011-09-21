@@ -30,5 +30,6 @@ def run():
 
 @task
 def clean():
+    sh('find . -name "__pycache__" -delete')
     sh('find . -name "*.pyc" -delete')
     sh('find . -name "*~" -delete')
