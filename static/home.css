@@ -1,0 +1,127 @@
+/* general */
+
+body {
+    font-family: tahoma, sans-serif;
+    color: #666;
+}
+
+.container {
+    width: 940px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.area {
+    border: solid 1px #ccc;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding: 5px 10px 5px 10px;
+}
+
+.label {
+    text-align: right;
+    font-weight: bold;
+}
+
+.explanation, .info {
+    font-size: small;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.info {
+    font-weight: bold;
+}
+
+a {
+    cursor: pointer;    
+}
+
+label, input {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+label {
+    position: absolute;
+    text-align: right;
+    width: 130px;
+}
+
+input {
+    margin-left: 140px;
+    width: 280px;
+}
+
+input[type='submit'] {
+    cursor: pointer;
+    border: solid 1px #07F;
+    color: #fff;
+    background-color: #08f;
+    width: 120px;
+    height: 30px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+input[type='submit']:hover {
+    border: solid 1px #05F;
+    background-color: #06f;
+}
+
+table {
+    margin-bottom: 10px;
+}
+
+th, td {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+thead {
+    border-bottom: solid 2px #ccc;
+    font-weight: bold;
+}
+
+td {
+    border-bottom: solid 1px #ccc;
+}
+
+/* header */
+
+#header {
+    background-color: #000;
+    color: #ddd;
+}
+
+#header h1 {
+    display: inline;
+    font-size: xx-large;
+    color: #eee;
+}
+
+#header a {
+    margin-left: 772px;
+    color: #ddd;
+    font-size: small;
+}
+
+/* groups */
+
+table#group .name {
+    width: 280px;
+}
+
+table#group .actions {
+    width: 60px;
+}
+
+/* footer */
+
+#footer {
+    margin-top: 1em;
+    border-top: solid 1px #ccc;
+    font-size: xx-small;
+}

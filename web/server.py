@@ -19,7 +19,7 @@ class HomeHandler(SignedInHandler):
     def get(self):
         access, secret, signed_in = self.cookie_data()
 
-        groups = None
+        groups = {}
         if signed_in:
             groups = group_manager.list_groups(access, secret)
 
@@ -68,6 +68,7 @@ def start():
         (r"/group/start", GroupStartHandler),
         (r"/group/delete/(\w+)", GroupDeleteHandler),
     ], **{
+        'static_path': os.path.join('static'),
         'template_path': os.path.join('templates'),
         'debug': True,
         'cookie_secret': 'not-really-secure-will-read-from-env-later'

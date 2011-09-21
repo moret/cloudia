@@ -4,51 +4,84 @@
 <head>
     <title>Instances starter</title>
     <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js'></script>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css"></link>
+    <link rel="stylesheet" href="/static/home.css"></link>
 </head>
 
 <body>
 
+<div id='header'>
+<div class='container'>
+    <h1>cloudia</h1>
+{% if signed_in %}
+    <a href='signout'>Disconnect</a>
+{% end %}
+</div>
+</div>
+
+<div id='main' class='container'>
 {% if not signed_in %}
-Connect
-
-<form method='post' action='signin'>
-<div><label for='access'>access</label><input type='text' name='access' value=''/></div>
-<div><label for='secret'>secret</label><input type='text' name='secret' value=''/></div>
-<input type='submit'/>
-</form>
-
-<hr/>
+    <form method='post' action='signin' class='area'>
+        <div class='label'>Credentials</div>
+        <div class='explanation'>
+            <p>To start, please inform your credentials. Don't worry, they won't be persisted. We will store them in a cookie on your browser.
+            <p>You can find them at <a target='_blank' href='http://www.google.com/'>http://www.google.com/</a>.
+        </div>
+        <div><label for='access'>AWS Access Key</label><input type='text' name='access' value=''/></div>
+        <div><label for='secret'>AWS Secret Key</label><input type='password' name='secret' value=''/></div>
+        <input type='submit' value='Enter'/>
+    </form>
 {% end %}
 
 {% if signed_in %}
-<span>Connected</span>
-<a href='signout'>Disconnect</a>
+    <div class='area'>
+        <div class='label'>Running worker groups</div>
+        <div class='explanation'>
+            <p>Your running groups are able to receive new job requests that suit their specialty.
+        </div>
+        {% if len(groups) == 0 %}
+        <div class='info'>
+            <p>You don't have any running work group.
+        </div>
+        {% else %}
+        <table id='group'>
+            <thead>
+            <tr>
+                <th class='name'>Group name</th>
+                <th class='actions'>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for group in groups %}
+            <tr>
+                <td class='name'>{{ group.name }}</td>
+                <td class='actions'><a href='group/delete/{{ group.name }}'>delete</a></td>
+            </tr>
+            {% end %}
+            </tbody>
+        </table>
+        {% end %}
+    </div>
 
-<hr/>
-
-Groups
-
-<ul>
-{% for group in groups %}
-<li>
-    <span>{{ group.name }}</span>
-    <a href='group/delete/{{ group.name }}'>delete</a>
-</li>
+    <form method='post' action='group/start' class='area'>
+        <div class='label'>Create worker group</div>
+        <div class='explanation'>
+            <p>To run a job you must create a group and assign a specialty to it. You can later make the groups larger or smaller as needed.
+            <p>When you create a group it will immediately run instances on AWS, and you will be billed. Make sure you remember to shutdown the group or the individual instances if you no longer need them.
+        </div>
+        <div><label for='group'>group</label><input type='text' name='group' value='first'/></div>
+        <div><label for='ami'>ami</label><input type='text' name='ami' value='ami-8e1fece7'/></div>
+        <div><label for='how_many'>how_many</label><input type='text' name='how_many' value='3'/></div>
+        <input type='submit' value='Start'/>
+    </form>
 {% end %}
-</ul>
+</div>
 
-<hr/>
-
-Create group
-
-<form method='post' action='group/start'>
-<div><label for='group'>group</label><input type='text' name='group' value='first'/></div>
-<div><label for='ami'>ami</label><input type='text' name='ami' value='ami-8e1fece7'/></div>
-<div><label for='how_many'>how_many</label><input type='text' name='how_many' value='3'/></div>
-<input type='submit'/>
-</form>
-
-{% end %}
+<div id='footer'>
+<div class='container'>
+    (c) 2011 moret.pro.br
+</div>
+</div>
 
 </body>
 
