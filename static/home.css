@@ -44,15 +44,24 @@ label, input {
     margin-bottom: 10px;
 }
 
+label, input[type='text'], input[type='password'] {
+    padding: 5px;
+}
+
 label {
     position: absolute;
     text-align: right;
-    width: 130px;
+    width: 120px;
 }
 
 input {
     margin-left: 140px;
     width: 280px;
+}
+
+input[type='text'], input[type='password'] {
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
 }
 
 input[type='submit'] {
