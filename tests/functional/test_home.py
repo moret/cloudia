@@ -6,7 +6,7 @@ def test_home_page_allows_signin():
     headers, html = b.get('http://0.0.0.0:8888/')
 
     assert '200' in headers['status']
-    assert 'Connect' in html
+    assert 'Enter' in html
     assert 'access' in html
     assert 'secret' in html
 

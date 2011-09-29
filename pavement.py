@@ -10,10 +10,12 @@ from paver.tasks import help
 import pytest
 
 from web import server
+from model.settings import settings
 
 @task
 def tests():
     clean()
+    settings.MOCK_GROUP_MANAGER = True
     test_server = pexpect.spawn('paver run')
     test_server.expect(' => Listening on 8888')
 

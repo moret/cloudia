@@ -5,7 +5,8 @@ import os
 import tornado.ioloop
 import tornado.web
 
-from model import group_manager
+from model.group_manager import GroupManager
+
 
 class SignedInHandler(tornado.web.RequestHandler):
     def cookie_data(self):
@@ -21,7 +22,7 @@ class HomeHandler(SignedInHandler):
 
         groups = {}
         if signed_in:
-            groups = group_manager.list_groups(access, secret)
+            groups = GroupManager().list_groups(access, secret)
 
         self.render('home.html', signed_in=signed_in, groups=groups)
 
@@ -47,7 +48,7 @@ class GroupStartHandler(SignedInHandler):
             group = self.get_argument('group')
             ami = self.get_argument('ami')
             how_many = self.get_argument('how_many')
-            group_manager.start_group(access, secret, ami, group,
+            GroupManager().start_group(access, secret, ami, group,
                     how_many)
         self.redirect('/')
 
@@ -56,7 +57,7 @@ class GroupDeleteHandler(SignedInHandler):
         access, secret, signed_in = self.cookie_data()
 
         if signed_in:
-            group_manager.stop_group(access, secret, group)
+            GroupManager().stop_group(access, secret, group)
         self.redirect('/')
 
 
