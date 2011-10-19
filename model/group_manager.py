@@ -18,7 +18,7 @@ class RealGroupManager():
         return conn.get_all_groups()
 
     def start_group(self, access, secret, ami, group, how_many):
-        conn = RealGroupManager.auto_scale_connection(access, secret)
+        conn = RealGroupManager.connection(access, secret)
 
         lcs = conn.get_all_launch_configurations(names=[group,])
         ags = conn.get_all_groups([group,])
