@@ -1,5 +1,3 @@
-import pytest
-
 from model.settings import settings
 from model.group_manager import GroupManager
 from model.group_manager import RealGroupManager
@@ -7,23 +5,14 @@ from model.group_manager import MockGroupManager
 
 class MockAutoScaleConnection():
     init_count = 0
-    get_all_groups_count = 0
+    get_all_instances_count = 0
 
     def __init__(self, *args):
         MockAutoScaleConnection.init_count += 1
 
-    def get_all_groups(self):
-        MockAutoScaleConnection.get_all_groups_count += 1
+    def get_all_instances(self):
+        MockAutoScaleConnection.get_all_instances_count += 1
         return []
-
-    def get_all_launch_configurations(self):
-        pass
-
-    def create_launch_configuration(self, configuration):
-        pass
-
-    def create_auto_scaling_group(self, group):
-        pass
 
 def test_real_group_manager_exists(monkeypatch):
     monkeypatch.setattr(settings, 'MOCK_GROUP_MANAGER', False)
@@ -40,7 +29,7 @@ def test_group_manager_list_connects_and_lists_once_when_listing(monkeypatch):
     gm = GroupManager()
     gm.list_groups(access, secret)
     assert 1 == MockAutoScaleConnection.init_count
-    assert 1 == MockAutoScaleConnection.get_all_groups_count
+    assert 1 == MockAutoScaleConnection.get_all_instances_count
 
 def test_mock_group_manager_exists():
     mock_gm = GroupManager()
@@ -51,11 +40,10 @@ def test_mock_group_creates_groups():
 
     access = 'access_key'
     secret = 'secret_key'
-    ami = 'some_ami'
     how_many = 3
 
-    mock_gm.start_group(access, secret, ami, 'first', how_many)
-    mock_gm.start_group(access, secret, ami, 'second', how_many)
+    mock_gm.start_group(access, secret, 'first', how_many)
+    mock_gm.start_group(access, secret, 'second', how_many)
     groups = mock_gm.list_groups(access, secret)
     assert 2 == len(groups)
 
@@ -64,11 +52,10 @@ def test_mock_group_stops_groups():
 
     access = 'access_key'
     secret = 'secret_key'
-    ami = 'some_ami'
     how_many = 3
 
-    mock_gm.start_group(access, secret, ami, 'first', how_many)
-    mock_gm.start_group(access, secret, ami, 'second', how_many)
+    mock_gm.start_group(access, secret, 'first', how_many)
+    mock_gm.start_group(access, secret, 'second', how_many)
     mock_gm.stop_group(access, secret, 'first')
     groups = mock_gm.list_groups(access, secret)
     assert 1 == len(groups)

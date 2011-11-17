@@ -48,19 +48,24 @@
             <thead>
             <tr>
                 <th class='name'>Group name</th>
+                <th class='statuses'>AWS Statuses</th>
                 <th class='actions'>Actions</th>
             </tr>
             </thead>
             <tbody>
-            {% for group in groups %}
+            {% for group in groups.values() %}
             <tr>
                 <td class='name'>{{ group.name }}</td>
-                <td class='actions'><a href='group/delete/{{ group.name }}'>delete</a></td>
+                <td class='statuses'>{{ group.statuses }}</td>
+                <td class='actions'>
+                    <a href='group/{{ group.name }}'>manage</a>
+                </td>
             </tr>
             {% end %}
             </tbody>
         </table>
         {% end %}
+        <input type='button' value='Refresh' onclick='window.location.reload()'/>
     </div>
 
     <form method='post' action='group/start' class='area'>
@@ -70,7 +75,6 @@
             <p>When you create a group it will immediately run instances on AWS, and you will be billed. Make sure you remember to shutdown the group or the individual instances if you no longer need them.
         </div>
         <div><label for='group'>group</label><input type='text' name='group' value='first'/></div>
-        <div><label for='ami'>ami</label><input type='text' name='ami' value='ami-8e1fece7'/></div>
         <div><label for='how_many'>how_many</label><input type='text' name='how_many' value='3'/></div>
         <input type='submit' value='Start'/>
     </form>

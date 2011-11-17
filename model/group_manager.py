@@ -1,8 +1,8 @@
-from boto.ec2.autoscale import AutoScaleConnection
-from boto.ec2.autoscale import LaunchConfiguration
-from boto.ec2.autoscale import AutoScalingGroup
+from boto.ec2.connection import EC2Connection
 
 from model.settings import settings
+from model.helpers import Map
+from model.group import Group
 
 def GroupManager():
     if settings.MOCK_GROUP_MANAGER:
@@ -11,45 +11,44 @@ def GroupManager():
         return RealGroupManager()
 
 class RealGroupManager():
-    connection = AutoScaleConnection
+    connection = EC2Connection
+
+    def get_group(self, access, secret, group):
+        return self.list_groups(access, secret).get(group)
 
     def list_groups(self, access, secret):
         conn = RealGroupManager.connection(access, secret)
-        return conn.get_all_groups()
+        groups = {}
 
-    def start_group(self, access, secret, ami, group, how_many):
+        for reservation in conn.get_all_instances():
+            for instance in reservation.instances:
+                if 'terminated' not in instance.state:
+                    tags = instance.tags
+                    if 'group' in tags.keys():
+                        group_name = tags['group']
+                        if group_name not in groups.keys():
+                            groups[group_name] = Group(group_name)
+                        groups[group_name].add_instance(instance)
+
+        return groups
+
+    def start_group(self, access, secret, group, how_many):
         conn = RealGroupManager.connection(access, secret)
-
-        lcs = conn.get_all_launch_configurations(names=[group,])
-        ags = conn.get_all_groups([group,])
-        if len(lcs) or len(ags):
-            print 'config group or exists: ' + group
-        else:
-            print 'new config and group: ' + group
-            print 'instances: ' + how_many
-
-            lc = LaunchConfiguration(name=group, image_id=ami, instance_type='m1.large')
-            conn.create_launch_configuration(lc)
-
-            ag = AutoScalingGroup(group_name=group, launch_config=lc,
-                    min_size=how_many, max_size=how_many,
-                    availability_zones=['us-east-1a', 'us-east-1b', 'us-east-1c'])
-            conn.create_auto_scaling_group(ag)
+        image = conn.get_image('ami-1b814f72')
+        reservation = image.run(min_count=how_many, max_count=how_many,
+                user_data=group, instance_type='m1.large')
+        for instance in reservation.instances:
+            instance.add_tag('group', value=group)
 
     def stop_group(self, access, secret, group):
         conn = RealGroupManager.connection(access, secret)
-
-        ags = conn.get_all_groups([group,])
-        for ag in ags:
-            print 'delete ag: ' + ag.name
-            ag.shutdown_instances()
-            ag.delete()
-
-        lcs = conn.get_all_launch_configurations(names=[group,])
-        for lc in lcs:
-            print 'delete lc: ' + lc.name
-            lc.delete()
-
+        for reservation in conn.get_all_instances():
+            for instance in reservation.instances:
+                tags = instance.tags
+                if 'group' in tags.keys():
+                    if group in tags['group']:
+                        if 'terminated' not in instance.state:
+                            instance.terminate()
 
 class MockGroupManager():
     groups = {}
@@ -57,8 +56,8 @@ class MockGroupManager():
     def list_groups(self, access, secret):
         return self.__class__.groups.values()
 
-    def start_group(self, access, secret, ami, group, how_many):
-        self.__class__.groups[group] = {'name': group}
+    def start_group(self, access, secret, group, how_many):
+        self.__class__.groups[group] = Map({'name': group})
 
     def stop_group(self, access, secret, group):
         self.__class__.groups.pop(group)

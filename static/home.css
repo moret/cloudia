@@ -64,7 +64,7 @@ input[type='text'], input[type='password'] {
     -webkit-border-radius: 4px;
 }
 
-input[type='submit'] {
+input[type='submit'], input[type='button'] {
     cursor: pointer;
     border: solid 1px #07F;
     color: #fff;
@@ -75,7 +75,7 @@ input[type='submit'] {
     -webkit-border-radius: 4px;
 }
 
-input[type='submit']:hover {
+input[type='submit']:hover, input[type='button']:hover {
     border: solid 1px #05F;
     background-color: #06f;
 }
@@ -123,8 +123,8 @@ table#group .name {
     width: 280px;
 }
 
-table#group .actions {
-    width: 60px;
+table#group .statuses, table#group .actions {
+    width: 120px;
 }
 
 /* footer */

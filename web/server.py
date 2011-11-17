@@ -46,13 +46,21 @@ class GroupStartHandler(SignedInHandler):
 
         if signed_in:
             group = self.get_argument('group')
-            ami = self.get_argument('ami')
             how_many = self.get_argument('how_many')
-            GroupManager().start_group(access, secret, ami, group,
-                    how_many)
+            GroupManager().start_group(access, secret, group, how_many)
         self.redirect('/')
 
-class GroupDeleteHandler(SignedInHandler):
+class GroupHandler(SignedInHandler):
+    def get(self, group):
+        access, secret, signed_in = self.cookie_data()
+
+        if signed_in:
+            group = GroupManager().get_group(access, secret, group)
+            self.render('group.html', group=group)
+        else:
+            self.redirect('/')
+
+class GroupStopHandler(SignedInHandler):
     def get(self, group):
         access, secret, signed_in = self.cookie_data()
 
@@ -67,7 +75,8 @@ def start():
         (r"/signin", SigninHandler),
         (r"/signout", SignoutHandler),
         (r"/group/start", GroupStartHandler),
-        (r"/group/delete/(\w+)", GroupDeleteHandler),
+        (r"/group/(\w+)", GroupHandler),
+        (r"/group/(\w+)/stop", GroupStopHandler),
     ], **{
         'static_path': os.path.join('static'),
         'template_path': os.path.join('templates'),

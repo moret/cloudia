@@ -1,0 +1,18 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Instances handler</title>
+</head>
+
+<body>
+
+Name: {{ group.name }}<br/>
+Statuses: {{ group.statuses }}<br/>
+<a href='/group/{{group.name}}/stop'>parar</a><br/>
+<input type='button' value='Refresh' onclick='window.location.reload()'/><br/>
+<a href='/'>voltar</a><br/>
+
+</body>
+
+</html>
