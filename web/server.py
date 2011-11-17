@@ -68,6 +68,15 @@ class GroupStopHandler(SignedInHandler):
             GroupManager().stop_group(access, secret, group)
         self.redirect('/')
 
+class GroupCreateJobHandler(SignedInHandler):
+    def post(self, group):
+        access, secret, signed_in = self.cookie_data()
+        bucket = self.get_argument('bucket')
+
+        if signed_in:
+            GroupManager().create_job(access, secret, group, bucket)
+        self.redirect('/group/%s' % group)
+
 
 def start():
     application = tornado.web.Application([
@@ -77,6 +86,7 @@ def start():
         (r"/group/start", GroupStartHandler),
         (r"/group/(\w+)", GroupHandler),
         (r"/group/(\w+)/stop", GroupStopHandler),
+        (r"/group/(\w+)/create_job", GroupCreateJobHandler),
     ], **{
         'static_path': os.path.join('static'),
         'template_path': os.path.join('templates'),

@@ -50,6 +50,11 @@ class RealGroupManager():
                         if 'terminated' not in instance.state:
                             instance.terminate()
 
+    def create_job(self, access, secret, group, bucket):
+        group = self.get_group(access, secret, group)
+        for instance in group.instances:
+            instance.add_tag('bucket', value=bucket)
+
 class MockGroupManager():
     groups = {}
 
