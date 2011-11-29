@@ -5,18 +5,22 @@ import tempfile
 import boto
 
 parser = argparse.ArgumentParser(description='Count words from S3 file')
-parser.add_argument('aws_bucket_uris', metavar='aws_bucket_uris',
-        type=unicode, nargs='+',
+parser.add_argument('sqs_name', metavar='sqs_name',
+        type=unicode, nargs=1,
         help='S3 uri - ex.: s3:/bucket/dir/file')
 
 aws_access_key = os.environ['AWS_ACCESS_KEY_ID']
 aws_secret_key = os.environ['AWS_SECRET_ACCESS_KEY']
+sqs_name = parser.parse_args().sqs_name[0]
 
 s3_conn = boto.connect_s3()
+sqs = boto.connect_sqs().get_queue(sqs_name)
 
 wc = 0
 
-for aws_bucket_uri in parser.parse_args().aws_bucket_uris:
+sqs_message = sqs.read()
+while sqs_message:
+    aws_bucket_uri = sqs_message.get_body()
     bucket_name, bucket_key = re.match('^s3://([\w\d_-]*)/(.*)$',
             aws_bucket_uri).groups()
 
@@ -29,5 +33,8 @@ for aws_bucket_uri in parser.parse_args().aws_bucket_uris:
     for i, l in enumerate(f):
         pass
     wc += i + 1
+
+    sqs.delete_message(sqs_message)
+    sqs_message = sqs.read()
 
 print wc

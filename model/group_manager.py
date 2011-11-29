@@ -1,5 +1,6 @@
 import boto
 from boto.ec2.connection import EC2Connection
+from boto.sqs.message import Message
 
 from model.settings import settings
 from model.helpers import Map
@@ -61,29 +62,26 @@ class RealGroupManager():
         # conn.get_key_pair('cloudia').save(temp_path)
         # aws_key = temp_path + 'cloudia.pem'
         aws_key = '/Users/danilo.moret/.ssh/cloudia.pem'
-        aws_hosts_tasks = {}
+        aws_hosts = []
 
         for instance in group.instances:
-            aws_hosts_tasks['ubuntu@' + instance.public_dns_name] = {
-                'tasks': []
-            }
+            aws_hosts.append('ubuntu@' + instance.public_dns_name)
         
         s3_conn = boto.connect_s3(access, secret)
-        bucket = s3_conn.get_bucket(bucket)
-        key_count = 0
-        hosts_len = len(aws_hosts_tasks.keys())
-        for key in bucket.get_all_keys():
+        sqs_conn = boto.connect_sqs(access, secret)
+
+        sqs = sqs_conn.get_queue(group.name)
+        if sqs == None:
+            sqs = sqs_conn.create_queue(group.name)
+
+        for key in s3_conn.get_bucket(bucket).get_all_keys():
             if key.size > 0:
                 key_url = 's3://' + key.bucket.name + '/' + key.name
-                host_name = aws_hosts_tasks.keys()[key_count % hosts_len]
-                aws_hosts_tasks[host_name]['tasks'].append(key_url)
-                key_count += 1
+                sqs.write(Message(body=key_url))
 
         package_path = 'wc-package'
-        results = use_instances(access, secret, aws_hosts_tasks, aws_key,
-                package_path)
-
-        return results
+        return use_instances(access, secret, aws_hosts, aws_key, package_path,
+                group.name)
 
 class MockGroupManager():
     groups = {}
