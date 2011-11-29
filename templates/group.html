@@ -13,6 +13,8 @@ Statuses: {{ group.statuses }}<br/>
 <input type='button' value='Refresh' onclick='window.location.reload()'/><br/>
 <a href='/'>voltar</a><br/>
 
+Results: {% for result in results %}{{result}},{% end %}
+
     <form method='post' action='/group/{{group.name}}/create_job' class='area'>
         <div class='label'>Create job</div>
         <div class='explanation'>

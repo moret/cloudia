@@ -56,7 +56,7 @@ class GroupHandler(SignedInHandler):
 
         if signed_in:
             group = GroupManager().get_group(access, secret, group)
-            self.render('group.html', group=group)
+            self.render('group.html', group=group, results=None)
         else:
             self.redirect('/')
 
@@ -74,8 +74,10 @@ class GroupCreateJobHandler(SignedInHandler):
         bucket = self.get_argument('bucket')
 
         if signed_in:
-            GroupManager().create_job(access, secret, group, bucket)
-        self.redirect('/group/%s' % group)
+            group = GroupManager().get_group(access, secret, group)
+            results = GroupManager().run_job(access, secret, group, bucket)
+        self.render('group.html', group=group, results=results)
+        # self.redirect('/group/%s' % group)
 
 
 def start():

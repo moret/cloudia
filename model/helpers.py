@@ -1,4 +1,4 @@
-from tornado.web import _O
+from tornado.util import ObjectDict
 
-class Map(_O):
+class Map(ObjectDict):
     pass

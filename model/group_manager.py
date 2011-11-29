@@ -1,8 +1,10 @@
+import boto
 from boto.ec2.connection import EC2Connection
 
 from model.settings import settings
 from model.helpers import Map
 from model.group import Group
+from model.instance_manager import use_instances
 
 def GroupManager():
     if settings.MOCK_GROUP_MANAGER:
@@ -24,8 +26,8 @@ class RealGroupManager():
             for instance in reservation.instances:
                 if 'terminated' not in instance.state:
                     tags = instance.tags
-                    if 'group' in tags.keys():
-                        group_name = tags['group']
+                    if 'Group' in tags.keys():
+                        group_name = tags['Group']
                         if group_name not in groups.keys():
                             groups[group_name] = Group(group_name)
                         groups[group_name].add_instance(instance)
@@ -34,26 +36,54 @@ class RealGroupManager():
 
     def start_group(self, access, secret, group, how_many):
         conn = RealGroupManager.connection(access, secret)
-        image = conn.get_image('ami-1b814f72')
+        image = conn.get_image('ami-bbf539d2')
         reservation = image.run(min_count=how_many, max_count=how_many,
-                user_data=group, instance_type='m1.large')
+                user_data=group, instance_type='m1.large', key_name='cloudia')
+        i = 1
         for instance in reservation.instances:
-            instance.add_tag('group', value=group)
+            instance.add_tag('Group', value=group)
+            instance.add_tag('Name', value='%s - %d' % (group, i))
+            i += 1
 
     def stop_group(self, access, secret, group):
         conn = RealGroupManager.connection(access, secret)
         for reservation in conn.get_all_instances():
             for instance in reservation.instances:
                 tags = instance.tags
-                if 'group' in tags.keys():
-                    if group in tags['group']:
+                if 'Group' in tags.keys():
+                    if group in tags['Group']:
                         if 'terminated' not in instance.state:
                             instance.terminate()
 
-    def create_job(self, access, secret, group, bucket):
-        group = self.get_group(access, secret, group)
+    def run_job(self, access, secret, group, bucket):
+        # conn = RealGroupManager.connection(access, secret)
+        # temp_path = tempfile.mkdtemp()
+        # conn.get_key_pair('cloudia').save(temp_path)
+        # aws_key = temp_path + 'cloudia.pem'
+        aws_key = '/Users/danilo.moret/.ssh/cloudia.pem'
+        aws_hosts_tasks = {}
+
         for instance in group.instances:
-            instance.add_tag('bucket', value=bucket)
+            aws_hosts_tasks['ubuntu@' + instance.public_dns_name] = {
+                'tasks': []
+            }
+        
+        s3_conn = boto.connect_s3(access, secret)
+        bucket = s3_conn.get_bucket(bucket)
+        key_count = 0
+        hosts_len = len(aws_hosts_tasks.keys())
+        for key in bucket.get_all_keys():
+            if key.size > 0:
+                key_url = 's3://' + key.bucket.name + '/' + key.name
+                host_name = aws_hosts_tasks.keys()[key_count % hosts_len]
+                aws_hosts_tasks[host_name]['tasks'].append(key_url)
+                key_count += 1
+
+        package_path = 'wc-package'
+        results = use_instances(access, secret, aws_hosts_tasks, aws_key,
+                package_path)
+
+        return results
 
 class MockGroupManager():
     groups = {}
