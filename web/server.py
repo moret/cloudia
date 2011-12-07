@@ -7,7 +7,6 @@ import tornado.web
 
 from model.group_manager import GroupManager
 
-
 class SignedInHandler(tornado.web.RequestHandler):
     def cookie_data(self):
         access = self.get_secure_cookie('access')
@@ -56,7 +55,7 @@ class GroupHandler(SignedInHandler):
 
         if signed_in:
             group = GroupManager().get_group(access, secret, group)
-            self.render('group.html', group=group, results=None)
+            self.render('group.html', signed_in=signed_in, group=group)
         else:
             self.redirect('/')
 
@@ -68,17 +67,38 @@ class GroupStopHandler(SignedInHandler):
             GroupManager().stop_group(access, secret, group)
         self.redirect('/')
 
-class GroupCreateJobHandler(SignedInHandler):
-    def post(self, group):
+class GroupSetupJobHandler(SignedInHandler):
+    def get(self, group):
         access, secret, signed_in = self.cookie_data()
-        bucket = self.get_argument('bucket')
 
         if signed_in:
-            group = GroupManager().get_group(access, secret, group)
-            results = GroupManager().run_job(access, secret, group, bucket)
-        self.render('group.html', group=group, results=results)
-        # self.redirect('/group/%s' % group)
+            GroupManager().setup(access, secret, group)
+        self.redirect('/group/%s' % group)
 
+class GroupMapHandler(SignedInHandler):
+    def get(self, group, bucket):
+        access, secret, signed_in = self.cookie_data()
+
+        if signed_in:
+            GroupManager().map(access, secret, group, bucket)
+        self.redirect('/group/%s' % group)
+
+class GroupProcessHandler(SignedInHandler):
+    def get(self, group, bucket):
+        access, secret, signed_in = self.cookie_data()
+
+        if signed_in:
+            GroupManager().process(access, secret, group, bucket)
+        self.redirect('/group/%s' % group)
+
+class GroupReduceHandler(SignedInHandler):
+    def get(self, group, bucket):
+        access, secret, signed_in = self.cookie_data()
+
+        if signed_in:
+            result = GroupManager().reduce(access, secret, group, bucket)
+            self.write(result)
+        self.redirect('/group/%s' % group)
 
 def start():
     application = tornado.web.Application([
@@ -88,7 +108,10 @@ def start():
         (r"/group/start", GroupStartHandler),
         (r"/group/(\w+)", GroupHandler),
         (r"/group/(\w+)/stop", GroupStopHandler),
-        (r"/group/(\w+)/create_job", GroupCreateJobHandler),
+        (r"/group/(\w+)/setup", GroupSetupJobHandler),
+        (r"/group/(\w+)/map/(\w+)", GroupMapHandler),
+        (r"/group/(\w+)/process/(\w+)", GroupProcessHandler),
+        (r"/group/(\w+)/reduce/(\w+)", GroupReduceHandler),
     ], **{
         'static_path': os.path.join('static'),
         'template_path': os.path.join('templates'),

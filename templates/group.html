@@ -1,21 +1,20 @@
-<!DOCTYPE HTML>
-<html>
+{% extends 'base.html' %}
 
-<head>
-    <title>Instances handler</title>
-</head>
+{% block main %}
 
-<body>
+    <div class='area'>
+        <div class='label'>{{ group.name }}</div>
+        Statuses: {{ group.statuses }}<br/>
+        <a href='/group/{{group.name}}/stop'>parar</a><br/>
+        <a href='/group/{{group.name}}/setup'>preparar</a><br/>
+        <a href='/group/{{group.name}}/map/word_count'>map</a><br/>
+        <a href='/group/{{group.name}}/process/word_count'>process</a><br/>
+        <a href='/group/{{group.name}}/reduce/word_count'>reduce</a><br/>
+        <a href='/'>home</a><br/>
+        <input type='button' value='Refresh' onclick='window.location.reload()'/><br/>
+    </div>
 
-Name: {{ group.name }}<br/>
-Statuses: {{ group.statuses }}<br/>
-<a href='/group/{{group.name}}/stop'>parar</a><br/>
-<input type='button' value='Refresh' onclick='window.location.reload()'/><br/>
-<a href='/'>voltar</a><br/>
-
-Results: {% for result in results %}{{result}},{% end %}
-
-    <form method='post' action='/group/{{group.name}}/create_job' class='area'>
+    <form method='post' action='/group/{{group.name}}/start_job' class='area'>
         <div class='label'>Create job</div>
         <div class='explanation'>
             <p>To run a job with this instance group you must specialize it.
@@ -24,7 +23,7 @@ Results: {% for result in results %}{{result}},{% end %}
         <div><label for='bucket'>bucket</label><input type='text' name='bucket' value='word_count'/></div>
         <input type='submit' value='Start'/>
     </form>
-
+{% end %}
 
 </body>
 

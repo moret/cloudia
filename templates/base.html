@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Cloudia</title>
+    <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js'></script>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css"></link>
+    <link rel="stylesheet" href="/static/home.css"></link>
+</head>
+
+<body>
+
+<div id='header'>
+<div class='container'>
+    <h1>cloudia</h1>
+{% if signed_in %}
+    <a href='/signout'>Disconnect</a>
+{% end %}
+</div>
+</div>
+
+<div id='main' class='container'>
+{% if not signed_in %}
+    <form method='post' action='/signin' class='area'>
+        <div class='label'>Credentials</div>
+        <div class='explanation'>
+            <p>To start, please inform your credentials. Don't worry, they won't be persisted. We will store them in a cookie on your browser.
+            <p>You can find them at <a target='_blank' href='https://aws-portal.amazon.com/gp/aws/developer/account?ie=UTF8&action=access-key'>https://aws-portal.amazon.com/gp/aws/developer/account?ie=UTF8&action=access-key</a>.
+        </div>
+        <div><label for='access'>AWS Access Key</label><input type='text' name='access' value=''/></div>
+        <div><label for='secret'>AWS Secret Key</label><input type='password' name='secret' value=''/></div>
+        <input type='submit' value='Enter'/>
+    </form>
+{% end %}
+
+{% if signed_in %}
+{% block main %}{% end %}
+{% end %}
+</div>
+
+<div id='footer'>
+<div class='container'>
+    (c) 2011 moret.pro.br
+</div>
+</div>
+
+</body>
+
+</html>
