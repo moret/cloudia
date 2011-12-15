@@ -1,6 +1,6 @@
 import json
 
-from boto.ec2.connection import EC2Connection
+from boto import ec2
 from tornado.httpclient import HTTPClient
 from tornado.httpclient import AsyncHTTPClient
 
@@ -20,7 +20,7 @@ class GroupManager():
                 pass
 
     def list_groups(self, access, secret):
-        conn = EC2Connection(access, secret)
+        conn = ec2.get_region('sa-east-1').connect()
         groups = {}
 
         for reservation in conn.get_all_instances():
@@ -36,8 +36,8 @@ class GroupManager():
         return groups
 
     def start_group(self, access, secret, group, how_many):
-        conn = EC2Connection(access, secret)
-        image = conn.get_image('ami-bbf539d2')
+        conn = ec2.get_region('sa-east-1').connect()
+        image = conn.get_image('ami-ee35eaf3')
         reservation = image.run(min_count=how_many, max_count=how_many,
                 user_data=group, instance_type='m1.large', key_name='cloudia',
                 security_groups=['cloudia'])
@@ -48,7 +48,7 @@ class GroupManager():
             i += 1
 
     def stop_group(self, access, secret, group):
-        conn = EC2Connection(access, secret)
+        conn = ec2.get_region('sa-east-1').connect()
         for reservation in conn.get_all_instances():
             for instance in reservation.instances:
                 tags = instance.tags
